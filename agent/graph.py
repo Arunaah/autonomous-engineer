@@ -1,7 +1,7 @@
 """LangGraph — main autonomous engineering pipeline."""
 from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, END
-from agent.builder import formalize_spec, plan_tasks, generate_code
+from agent.builder import formalize_spec, plan_tasks, generate_code, fix_ci_failure_code
 from agent.reviewer import review_diff, fix_ci_failure
 from memory import store_failure, store_fix, get_similar_failures, store_run, complete_run
 import os, json
@@ -69,13 +69,14 @@ def node_fix(state: EngineState) -> EngineState:
     failure_report = json.dumps(state["ci_result"].get("failures", {}))
     current_code = json.dumps(state["generated_files"])
     past_fixes = json.dumps(get_similar_failures(state["ci_result"].get("stage", "pytest")))
-    fix = fix_ci_failure(failure_report, current_code, past_fixes)
+    # Use builder's fix (more powerful code generation)
+    fix = fix_ci_failure_code(failure_report, current_code, past_fixes)
     fail_id = store_failure(
-        state["iteration"], state["pr_number"],
+        state["iteration"], state["pr_number"] or 0,
         state["ci_result"].get("stage", "unknown"),
         failure_report, state["ci_result"].get("stage", "unknown")
     )
-    store_fix(fail_id, json.dumps(fix), state["confidence"], 0.0, False)
+    store_fix(fail_id, json.dumps(fix), state["confidence"] or 0.0, 0.0, False)
     updated_files = {**state["generated_files"], **fix.get("files", {})}
     return {**state, "generated_files": updated_files, "iteration": state["iteration"] + 1, "status": "fixing"}
 
