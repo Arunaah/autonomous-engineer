@@ -1,24 +1,36 @@
-"""CI confidence computation — runs inside GitHub Actions Stage 5."""
+"""Compute and print final confidence score — runs inside GitHub Actions."""
 import os, sys
 
-def to_score(val: str) -> float:
-    return 1.0 if str(val).lower() in ("true", "1", "yes", "passed") else 0.0
+static_passed     = os.getenv("STATIC_PASSED",     "false").lower() == "true"
+coverage_passed   = os.getenv("COVERAGE_PASSED",   "false").lower() == "true"
+production_passed = os.getenv("PRODUCTION_PASSED", "false").lower() == "true"
+stress_passed     = os.getenv("STRESS_PASSED",     "false").lower() == "true"
+reviewer_score    = float(os.getenv("REVIEWER_SCORE", "10"))
 
-static   = to_score(os.getenv("STATIC_PASSED",   "true"))
-coverage = to_score(os.getenv("COVERAGE_PASSED",  "true"))
-production = to_score(os.getenv("PRODUCTION_PASSED", "true"))
-stress   = to_score(os.getenv("STRESS_PASSED",    "true"))
-reviewer = float(os.getenv("REVIEWER_SCORE",      "13"))
+static_score   = 25.0 if static_passed else 12.5
+coverage_score = 25.0 if coverage_passed else 12.5
+prod_score     = 20.0 if production_passed else 10.0
+stress_score   = 15.0 if stress_passed else 7.5
+reviewer_contrib = min(reviewer_score, 15.0)
 
-confidence = (static * 25) + (coverage * 25) + (production * 20) + (stress * 15) + reviewer
+total = static_score + coverage_score + prod_score + stress_score + reviewer_contrib
 
-print(f"::notice::Static={static*25}/25 Coverage={coverage*25}/25 Prod={production*20}/20 Stress={stress*15}/15 Reviewer={reviewer}/15")
-print(f"CONFIDENCE={confidence:.2f}")
+print(f"=== CONFIDENCE SCORE REPORT ===")
+print(f"Static Analysis  : {static_score:5.1f} / 25.0  ({'PASS' if static_passed else 'PARTIAL'})")
+print(f"Test Coverage    : {coverage_score:5.1f} / 25.0  ({'PASS' if coverage_passed else 'PARTIAL'})")
+print(f"Prod Simulation  : {prod_score:5.1f} / 20.0  ({'PASS' if production_passed else 'PARTIAL'})")
+print(f"Stress Tests     : {stress_score:5.1f} / 15.0  ({'PASS' if stress_passed else 'PARTIAL'})")
+print(f"Reviewer Score   : {reviewer_contrib:5.1f} / 15.0")
+print(f"{'─'*40}")
+print(f"TOTAL CONFIDENCE : {total:5.1f} / 100.0")
+print(f"THRESHOLD        :  95.0")
+print(f"DECISION         : {'✅ AUTO-MERGE' if total >= 95 else '🔄 FIX LOOP'}")
 
-if confidence >= 95:
-    print("DECISION=auto_merge")
-    print("::notice::✅ Confidence >= 95 — AUTO MERGE APPROVED")
-else:
-    print(f"DECISION=fix_required")
-    print(f"::notice::⚠️ Confidence {confidence:.2f} < 95 — fix iteration required")
-    # Don't exit(1) — let CI pass so we can read the score
+# Write to GITHUB_OUTPUT if available
+github_output = os.getenv("GITHUB_OUTPUT", "")
+if github_output:
+    with open(github_output, "a") as f:
+        f.write(f"confidence={total}\n")
+        f.write(f"should_merge={'true' if total >= 95 else 'false'}\n")
+
+sys.exit(0)
