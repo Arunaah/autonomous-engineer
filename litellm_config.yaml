@@ -1,18 +1,28 @@
 model_list:
+  # Primary builder — GLM-4
   - model_name: glm4
     litellm_params:
       model: ollama/glm4
-      api_base: http://ollama:11434
+      api_base: http://ae-ollama:11434
 
+  # Reviewer — MiniMax (falls back to GLM-4 if unavailable)
   - model_name: glm4-reviewer
     litellm_params:
       model: ollama/glm4
-      api_base: http://ollama:11434
+      api_base: http://ae-ollama:11434
+
+  # Alias for reviewer
+  - model_name: minimax-reviewer
+    litellm_params:
+      model: ollama/glm4
+      api_base: http://ae-ollama:11434
 
 litellm_settings:
   drop_params: true
   request_timeout: 600
   num_retries: 3
+  fallbacks:
+    - minimax-reviewer: ["glm4-reviewer", "glm4"]
 
 general_settings:
   master_key: ae-litellm-master-key-2024
