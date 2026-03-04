@@ -1,0 +1,18 @@
+model_list:
+  - model_name: glm4
+    litellm_params:
+      model: ollama/glm4
+      api_base: http://ollama:11434
+
+  - model_name: glm4-reviewer
+    litellm_params:
+      model: ollama/glm4
+      api_base: http://ollama:11434
+
+litellm_settings:
+  drop_params: true
+  request_timeout: 600
+  num_retries: 3
+
+general_settings:
+  master_key: ae-litellm-master-key-2024
