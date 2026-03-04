@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from agent.graph import agent_graph
+from agent.graph import autonomous_graph as agent_graph
 from retrieval.indexer import build_index
 
 app = typer.Typer(name="ae", help="Autonomous Engineer — beats Claude Code")

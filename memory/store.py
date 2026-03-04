@@ -30,3 +30,19 @@ def store_fix(failure_id: int, patch_diff: str, confidence_before: float, confid
              "after": confidence_after, "success": success}
         )
         session.commit()
+
+
+def format_fix_context(fixes: list) -> str:
+    """Format past fix patterns into a prompt-injectable string."""
+    if not fixes:
+        return "No historical fix patterns available."
+    lines = []
+    for f in fixes:
+        delta = f.get("confidence_delta") or (f.get("confidence_after", 0) - f.get("confidence_before", 0))
+        lines.append(
+            f"[{f.get('error_type', 'unknown')} | stage={f.get('stage', '?')}]\n"
+            f"  Trace: {f.get('stack_trace', '')[:200]}\n"
+            f"  Fix: {f.get('fix_strategy') or f.get('patch_diff', '')[:300]}\n"
+            f"  Result: +{delta:.1f}% confidence | used {f.get('usage_count', 1)}x"
+        )
+    return "\n\n".join(lines)

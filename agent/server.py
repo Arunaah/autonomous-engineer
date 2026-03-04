@@ -11,7 +11,7 @@ import uvicorn
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 
-from agent.graph import agent_graph
+from agent.graph import autonomous_graph as agent_graph
 from retrieval.indexer import build_index
 
 log = structlog.get_logger()
