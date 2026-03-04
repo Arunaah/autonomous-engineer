@@ -1,13 +1,12 @@
 """Set all required GitHub Actions secrets for the autonomous engineer."""
-import requests, base64
+import os, requests, base64
 from nacl import encoding, public
 
-GITHUB_TOKEN = "REDACTED"
+GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 REPO = "arunaah/autonomous-engineer"
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
 
 SECRETS = {
-    "GITHUB_PAT": GITHUB_TOKEN,
     "LITELLM_API_KEY": "ae-litellm-master-key-2024",
     "DATABASE_URL": "postgresql://ae_user:ae_secure_pass_2024@ae-postgres:5432/autonomous_engineer",
     "GLM_MODEL": "glm4",
