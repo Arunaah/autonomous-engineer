@@ -171,11 +171,19 @@ def node_fix(state: EngineState) -> EngineState:
         from agent.reviewer import fix_ci_failure
         from memory.store import store_failure, store_fix
         from memory.recall import get_similar_failures
+        from memory.qdrant_store import search_similar_failures, qdrant_available
 
         failure_report = json.dumps(state["ci_result"].get("failures", []))
         current_code   = json.dumps(list(state["generated_files"].keys()))
-        past_fixes     = json.dumps(get_similar_failures(
-            state["ci_result"].get("stage", "pytest")))
+
+        # Phase 2: try Qdrant semantic search first, fallback to PostgreSQL
+        if qdrant_available():
+            qdrant_hits = search_similar_failures(failure_report, limit=3)
+            past_fixes  = json.dumps(qdrant_hits) if qdrant_hits else ""
+            logger.info(f"[AE] Qdrant semantic recall: {len(qdrant_hits)} hits")
+        else:
+            past_fixes = json.dumps(get_similar_failures(
+                state["ci_result"].get("stage", "pytest")))
 
         fix = fix_ci_failure(failure_report, current_code, past_fixes)
 
@@ -204,6 +212,17 @@ def node_deploy(state: EngineState) -> EngineState:
     try:
         from github_utils import merge_pr
         merge_pr(state["pr_number"])
+        # Store success pattern in Qdrant for future recall
+        try:
+            from memory.qdrant_store import store_failure_vector, qdrant_available
+            if qdrant_available() and state.get("iteration", 0) > 0:
+                store_failure_vector(
+                    failure_id=state.get("run_id", 0),
+                    error_text=json.dumps(state.get("ci_result", {}).get("failures", [])),
+                    fix_diff=json.dumps(list(state.get("generated_files", {}).keys())),
+                    confidence_delta=state.get("confidence", 0))
+        except Exception as qe:
+            logger.debug(f"Qdrant store skipped: {qe}")
         try:
             from memory.recall import complete_run
             complete_run(state["run_id"], state["confidence"],
