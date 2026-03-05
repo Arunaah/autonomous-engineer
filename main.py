@@ -1,17 +1,16 @@
-class BankAccount:
-    def __init__(self, initial_balance=0):
-        self.balance = initial_balance
-        self.balance_history = [(0, initial_balance)]
+import argparse
 
-    def deposit(self, amount):
-        if amount > 0:
-            self.balance += amount
-            self.balance_history.append((amount, self.balance))
+def handle_request(request):
+    # Placeholder function to handle user requests
+    return f"Processed request: {request}"
 
-    def withdraw(self, amount):
-        if 0 < amount <= self.balance:
-            self.balance -= amount
-            self.balance_history.append((-amount, self.balance))
+def main():
+    parser = argparse.ArgumentParser(description="User Request Handler")
+    parser.add_argument('request', type=str, help="The user request to process")
+    args = parser.parse_args()
+    
+    result = handle_request(args.request)
+    print(result)
 
-    def get_balance_history(self):
-        return self.balance_history
+if __name__ == "__main__":
+    main()
