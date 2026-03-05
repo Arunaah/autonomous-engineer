@@ -162,6 +162,9 @@ def plan_tasks(spec: dict) -> list:
         logger.warning(f"Plan parse failed ({e}), using fallback")
         tasks = []
 
+    # Cap at 2 tasks max for GLM-4 local speed
+    tasks = tasks[:2]
+
     if not tasks:
         tasks = [
             {"id": "task_1", "title": spec.get("title", "implementation"),
