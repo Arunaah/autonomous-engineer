@@ -1,16 +1,20 @@
 import random
 import string
 
-def generate_password(length=8):
-    if length < 8:
-        raise ValueError("Password length must be at least 8 characters.")
-    characters = string.ascii_letters + string.digits + string.punctuation
+def generate_password(length, include_special_chars):
+    characters = string.ascii_letters + string.digits
+    if include_special_chars:
+        characters += string.punctuation
     return ''.join(random.choice(characters) for _ in range(length))
 
-if __name__ == "__main__":
+def main():
     try:
-        password_length = int(input("Enter the desired password length (minimum 8): "))
-        password = generate_password(password_length)
-        print(f"Generated password: {password}")
-    except ValueError as e:
-        print(e)
+        length = int(input("Enter the desired password length: "))
+        include_special_chars = input("Include special characters? (yes/no): ").lower() == 'yes'
+        password = generate_password(length, include_special_chars)
+        print(f"Generated Password: {password}")
+    except ValueError:
+        print("Please enter a valid number for the password length.")
+
+if __name__ == "__main__":
+    main()
