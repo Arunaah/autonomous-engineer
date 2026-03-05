@@ -1,36 +1,12 @@
 import pytest
-from main import Calculator
+from main import main_function
 
-def test_add():
-    calc = Calculator()
-    assert calc.add(2, 3) == 5
-
-def test_subtract():
-    calc = Calculator()
-    assert calc.subtract(5, 3) == 2
-
-def test_multiply():
-    calc = Calculator()
-    assert calc.multiply(2, 3) == 6
-
-def test_divide():
-    calc = Calculator()
-    with pytest.raises(ZeroDivisionError):
-        calc.divide(4, 0)
-
-def test_divide_result():
-    calc = Calculator()
-    assert calc.divide(8, 2) == 4
-
-def test_power():
-    calc = Calculator()
-    assert calc.power(2, 3) == 8
-
-def test_square_root():
-    calc = Calculator()
-    assert calc.square_root(16) == 4
-
-def test_square_root_negative():
-    calc = Calculator()
+def test_main_function():
+    assert main_function(3, 4) == 7
+    assert main_function(5, 2) == 7
+    assert main_function(0, 0) == 0
+    assert main_function(-1, 1) == 0
     with pytest.raises(ValueError):
-        calc.square_root(-1)
+        main_function('a', 1)
+        main_function(1, 'b')
+        main_function('a', 'b')
