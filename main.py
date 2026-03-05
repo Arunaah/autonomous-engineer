@@ -1,52 +1,38 @@
-class Calculator:
-    def add(self, x, y):
-        return x + y
+import sys
 
-    def subtract(self, x, y):
-        return x - y
+def calculate_grade(marks):
+    """
+    Calculate the grade based on marks.
+    :param marks: List of marks
+    :return: Grade
+    """
+    if not marks:
+        return "No marks provided"
 
-    def multiply(self, x, y):
-        return x * y
-
-    def divide(self, x, y):
-        if y == 0:
-            raise ValueError("Cannot divide by zero")
-        return x / y
+    average = sum(marks) / len(marks)
+    if average >= 90:
+        return "A"
+    elif average >= 80:
+        return "B"
+    elif average >= 70:
+        return "C"
+    elif average >= 60:
+        return "D"
+    else:
+        return "F"
 
 def main():
-    calculator = Calculator()
-    while True:
-        print("Options:")
-        print("1. Add")
-        print("2. Subtract")
-        print("3. Multiply")
-        print("4. Divide")
-        print("5. Exit")
-        choice = input("Enter your choice (1-5): ")
-        if choice == '5':
-            break
-        if choice in ['1', '2', '3', '4']:
-            if choice == '1':
-                x = float(input("Enter first number: "))
-                y = float(input("Enter second number: "))
-                print("Result:", calculator.add(x, y))
-            elif choice == '2':
-                x = float(input("Enter first number: "))
-                y = float(input("Enter second number: "))
-                print("Result:", calculator.subtract(x, y))
-            elif choice == '3':
-                x = float(input("Enter first number: "))
-                y = float(input("Enter second number: "))
-                print("Result:", calculator.multiply(x, y))
-            elif choice == '4':
-                x = float(input("Enter first number: "))
-                y = float(input("Enter second number: "))
-                try:
-                    print("Result:", calculator.divide(x, y))
-                except ValueError as e:
-                    print(e)
-        else:
-            print("Invalid choice. Please enter a number between 1 and 5.")
+    """
+    Main function to calculate the grade of a student.
+    """
+    try:
+        marks = [float(mark) for mark in sys.argv[1:]]
+        grade = calculate_grade(marks)
+        print(f"The student's grade is: {grade}")
+    except ValueError:
+        print("Error: Marks should be numbers.")
+    except IndexError:
+        print("Error: No marks provided.")
 
 if __name__ == "__main__":
     main()
