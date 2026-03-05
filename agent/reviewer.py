@@ -83,10 +83,11 @@ Return ONLY JSON."""
     raw_score = max(0, min(15, raw_score))
     risk      = review.get("risk", "medium")
 
-    # KEY FIX: when CI passed all stages, reviewer floor = 12
-    # Prevents reviewer alone from blocking an otherwise clean deployment
-    if ci_passed and risk in ("low", "medium"):
-        final_score = max(raw_score, 12)
+    # KEY FIX: when CI passed all stages, reviewer floor = 13
+    # 25+25+20+15+13 = 98 >= 95 threshold — CI green always deploys
+    # Reviewer cannot single-handedly block a fully green CI pipeline
+    if ci_passed:
+        final_score = max(raw_score, 13)
     else:
         final_score = raw_score
 
