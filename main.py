@@ -1,38 +1,16 @@
-import sys
+import random
+import string
 
-def calculate_grade(marks):
-    """
-    Calculate the grade based on marks.
-    :param marks: List of marks
-    :return: Grade
-    """
-    if not marks:
-        return "No marks provided"
-
-    average = sum(marks) / len(marks)
-    if average >= 90:
-        return "A"
-    elif average >= 80:
-        return "B"
-    elif average >= 70:
-        return "C"
-    elif average >= 60:
-        return "D"
-    else:
-        return "F"
-
-def main():
-    """
-    Main function to calculate the grade of a student.
-    """
-    try:
-        marks = [float(mark) for mark in sys.argv[1:]]
-        grade = calculate_grade(marks)
-        print(f"The student's grade is: {grade}")
-    except ValueError:
-        print("Error: Marks should be numbers.")
-    except IndexError:
-        print("Error: No marks provided.")
+def generate_password(length=8):
+    if length < 8:
+        raise ValueError("Password length must be at least 8 characters.")
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for _ in range(length))
 
 if __name__ == "__main__":
-    main()
+    try:
+        password_length = int(input("Enter the desired password length (minimum 8): "))
+        password = generate_password(password_length)
+        print(f"Generated password: {password}")
+    except ValueError as e:
+        print(e)
