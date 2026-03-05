@@ -1,16 +1,17 @@
-import random
-import string
+class BankAccount:
+    def __init__(self, initial_balance=0):
+        self.balance = initial_balance
+        self.balance_history = [(0, initial_balance)]
 
-def generate_password(length=8):
-    if length < 8:
-        raise ValueError("Password length must be at least 8 characters.")
-    characters = string.ascii_letters + string.digits + string.punctuation
-    return ''.join(random.choice(characters) for _ in range(length))
+    def deposit(self, amount):
+        if amount > 0:
+            self.balance += amount
+            self.balance_history.append((amount, self.balance))
 
-if __name__ == "__main__":
-    try:
-        password_length = int(input("Enter the desired password length (minimum 8): "))
-        password = generate_password(password_length)
-        print(f"Generated password: {password}")
-    except ValueError as e:
-        print(e)
+    def withdraw(self, amount):
+        if 0 < amount <= self.balance:
+            self.balance -= amount
+            self.balance_history.append((-amount, self.balance))
+
+    def get_balance_history(self):
+        return self.balance_history
